@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     name: Tests
@@ -20,3 +23,22 @@ jobs:
 
       - name: Run tests
         run: go test ./... -cover
+      - name: Install gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+      - name: Run gosec
+        run: gosec ./...
+
+  style:
+    name: Style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check formatting
+        uses: actions/checkout@v4
+      - name: Run gofmt
+        run: test -z $(go fmt ./...)
+      - name: Install staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+      - name: Run staticcheck
+        uses: dominikh/staticcheck-action@v1
+        with:
+          version: "latest"
