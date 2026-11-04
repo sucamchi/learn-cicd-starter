@@ -1,7 +1,10 @@
+name: cd
+
 on:
   push:
     branches: [main]
-    jobs:
+
+jobs:
       deploy:
         name: Deploy
         runs-on: ubuntu-latest
@@ -13,4 +16,4 @@ on:
             with:
               go-version: "1.27.1"
           - name: Build
-            run: ./scripts/buildprod.sh
+            run: ./scripts/buildprod.sh    
