@@ -4,16 +4,30 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
-      deploy:
-        name: Deploy
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout code
-            uses: actions/checkout@v4
-          - name: Set up Go
-            uses: actions/setup-go@v5
-            with:
-              go-version: "1.27.1"
-          - name: Build
-            run: ./scripts/buildprod.sh    
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.1"
+      - name: Build
+        run: ./scripts/buildprod.sh
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: steadfast-baton-513823-v0
+          workload_identity_provider: projects/96434352001/locations/global/workloadIdentityPools/github/providers/my-repo
+          service_account: cloud-run-deployer@steadfast-baton-513823-v0.iam.gserviceaccount.com
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Build and push Docker image
+        run: gcloud builds submit --tag us-central1-docker.pkg.dev/steadfast-baton-513823-v0/notely-ar-repo/notely:latest .
